@@ -5,16 +5,13 @@ from datetime import datetime, timedelta
 
 class GoogleCalendarAPITest(unittest.TestCase):
     def setUp(self):
-        # 구글 캘린더 API 서비스 계정 정보 및 범위 설정
         SERVICE_ACCOUNT_FILE = 'path service_account.json'
         SCOPES = ['https://www.googleapis.com/auth/calendar']
-
-        # 서비스 계정으로 구글 캘린더 API에 연결
         credentials = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.service = build('calendar', 'v3', credentials=credentials)
 
-        # 테스트에 사용할 이벤트 생성
+        # 테스트용 일정 생성
         start_time = datetime.utcnow() + timedelta(days=1)
         end_time = start_time + timedelta(hours=1)
         event = {
@@ -32,7 +29,7 @@ class GoogleCalendarAPITest(unittest.TestCase):
 
     def test_API_001(self):
         try:
-            updated_summary = '제목 업데이트'
+            updated_summary = '제목'
             updated_event = self.update_event(summary=updated_summary)
             self.assertEqual(updated_event['summary'], updated_summary)
             print("API_001_summary 값만 있을 경우 응답 확인 결과 : PASS")
@@ -42,13 +39,13 @@ class GoogleCalendarAPITest(unittest.TestCase):
     def test_API_002(self):
         try:
             updated_event = self.update_event(
-                summary='Updated Summary',
-                description='Updated Description',
+                summary='제목 업데이트',
+                description='설명 업데이트',
                 location='B회의실',
                 timeZone='Asia/Seoul'
             )
-            self.assertEqual(updated_event['summary'], 'Updated Summary')
-            self.assertEqual(updated_event['description'], 'Updated Description')
+            self.assertEqual(updated_event['summary'], '제목 업데이트')
+            self.assertEqual(updated_event['description'], '설명 업데이트')
             self.assertEqual(updated_event['location'], 'B회의실')
             self.assertEqual(updated_event['start']['timeZone'], 'Asia/Seoul')
             self.assertEqual(updated_event['end']['timeZone'], 'Asia/Seoul')
@@ -95,6 +92,7 @@ class GoogleCalendarAPITest(unittest.TestCase):
             print("API_007_timeZone 잘못된 값이 입력된 경우 응답 확인 결과 : PASS")
         except Exception as e:
             print(f"API_007_timeZone 잘못된 값이 입력된 경우 응답 확인 결과 : FAIL\n에러메시지 : {e}")
+
     def test_API_008(self):
         try:
             with self.assertRaises(Exception):
@@ -102,10 +100,6 @@ class GoogleCalendarAPITest(unittest.TestCase):
             print("API_008_timeZone 값이string이 아닌 intger로 입력된 경우 응답 확인 결과 : PASS")
         except Exception as e:
             print(f"API_008_timeZone 값이string이 아닌 intger로 입력된 경우 응답 확인 결과 : PASS\n에러메시지 : {e}")
-        # try:
-        #     self.update_event(timeZone=12345)
-        # except Exception as e:
-        #     print(f"{e}")
 
     def update_event(self, summary=None, description=None, location=None, timeZone=None):
         updated_event = {
